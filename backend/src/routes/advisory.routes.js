@@ -1,0 +1,90 @@
+/**
+ * advisory.routes.js
+ * POST /api/advisory/chat
+ * Citizen health advisory chatbot — LLM-generated, Hindi + English.
+ */
+
+const express = require('express');
+const router = express.Router();
+const { v4: uuidv4 } = require('crypto').randomUUID ? { v4: () => require('crypto').randomUUID() } : require('uuid');
+const { generateAdvisory } = require('../services/llm-client');
+const { callML } = require('../services/ml-client');
+const AdvisoryLog = require('../models/AdvisoryLog');
+
+// Simple POI proximity check (mock — in production, would query a spatial DB)
+const VULNERABLE_ZONES = ['rk-puram', 'rohini', 'dwarka']; // zones near hospitals/schools in sample data
+
+/**
+ * POST /api/advisory/chat
+ * Body: { location: string, query: string, language: 'en' | 'hi' }
+ */
+router.post('/chat', async (req, res) => {
+  const { location, query, language = 'en' } = req.body;
+
+  if (!location || !query) {
+    return res.status(400).json({
+      error: 'Missing required fields',
+      message: 'Both "location" and "query" are required.',
+    });
+  }
+
+  if (!['en', 'hi'].includes(language)) {
+    return res.status(400).json({
+      error: 'Unsupported language',
+      message: 'language must be "en" or "hi"',
+    });
+  }
+
+  try {
+    // 1. Get current AQI for location from forecast endpoint (internal call)
+    let currentAQI = 200; // fallback
+    try {
+      const forecastData = await callML(`/forecast/${location}`);
+      const latestForecast = forecastData?.forecast?.[0];
+      currentAQI = latestForecast?.predictedAQI || 200;
+    } catch {
+      console.warn('[ADVISORY] Could not fetch AQI for location, using fallback AQI 200');
+    }
+
+    // 2. Check if zone is near vulnerable POI (hospital/school)
+    const nearVulnerablePOI = VULNERABLE_ZONES.includes(location);
+
+    // 3. Call LLM (falls back to static message if LLM unavailable)
+    const { reply, riskLevel } = await generateAdvisory({
+      location,
+      aqi: currentAQI,
+      query,
+      language,
+      nearVulnerablePOI,
+    });
+
+    // 4. Log interaction to MongoDB (anonymous session, no PII)
+    const sessionId = uuidv4 ? uuidv4() : `session-${Date.now()}`;
+    try {
+      await AdvisoryLog.create({
+        sessionId,
+        location,
+        query,
+        reply,
+        riskLevel,
+        language,
+        timestamp: new Date(),
+      });
+    } catch (dbErr) {
+      console.warn('[ADVISORY] DB log failed (non-fatal):', dbErr.message);
+    }
+
+    return res.json({ reply, riskLevel, location, currentAQI });
+  } catch (err) {
+    console.error('[ADVISORY ROUTE ERROR]', err.message);
+    return res.status(503).json({
+      error: 'Advisory service unavailable',
+      reply: language === 'hi'
+        ? 'क्षमा करें, सलाह सेवा अभी उपलब्ध नहीं है। सामान्य सुझाव: AQI 200 से ऊपर होने पर बाहर जाने से बचें।'
+        : 'Advisory service temporarily unavailable. General guidance: avoid outdoor activity if AQI is above 200.',
+      riskLevel: 'unknown',
+    });
+  }
+});
+
+module.exports = router;

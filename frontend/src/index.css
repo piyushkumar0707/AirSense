@@ -1,0 +1,102 @@
+/* AirSense — Global Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg-primary: #0a0f1e;
+  --bg-card: #111827;
+  --bg-card-hover: #1a2332;
+  --accent-blue: #3b82f6;
+  --accent-teal: #06b6d4;
+  --accent-green: #10b981;
+  --accent-amber: #f59e0b;
+  --accent-red: #ef4444;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --border: #1e293b;
+  --aqi-good: #22c55e;
+  --aqi-satisfactory: #a3e635;
+  --aqi-moderate: #facc15;
+  --aqi-poor: #f97316;
+  --aqi-very-poor: #ef4444;
+  --aqi-severe: #7c3aed;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+/* Navbar */
+.navbar {
+  display: flex;
+  align-items: center;
+  padding: 0 1.5rem;
+  height: 60px;
+  background: rgba(17, 24, 39, 0.95);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: 1.5rem;
+}
+.navbar-brand { display: flex; align-items: center; gap: 0.5rem; }
+.brand-icon { font-size: 1.4rem; }
+.brand-name { font-size: 1.1rem; font-weight: 700; color: var(--accent-blue); }
+.brand-tag { font-size: 0.7rem; color: var(--text-secondary); display: none; }
+@media (min-width: 768px) { .brand-tag { display: block; } }
+.navbar-links { display: flex; gap: 0.5rem; flex: 1; justify-content: center; }
+.navbar-links a {
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.navbar-links a:hover, .navbar-links a.active {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--accent-blue);
+}
+.navbar-badge { display: flex; gap: 0.5rem; }
+.demo-badge, .city-badge {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.demo-badge { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+.city-badge { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+/* Main Content */
+.main-content { flex: 1; padding: 1.5rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: background 0.2s;
+}
+.card:hover { background: var(--bg-card-hover); }
+.card-title { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+
+/* AQI Color Helpers */
+.aqi-good { color: var(--aqi-good); }
+.aqi-satisfactory { color: var(--aqi-satisfactory); }
+.aqi-moderate { color: var(--aqi-moderate); }
+.aqi-poor { color: var(--aqi-poor); }
+.aqi-very-poor { color: var(--aqi-very-poor); }
+.aqi-severe { color: var(--aqi-severe); }
+
+/* Loading + Error */
+.loading { color: var(--text-secondary); font-size: 0.9rem; padding: 2rem; text-align: center; }
+.error-msg { color: var(--accent-red); font-size: 0.85rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border-radius: 8px; }
