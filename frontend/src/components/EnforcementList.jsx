@@ -1,88 +1,118 @@
 import React from 'react';
+import { SOURCE_ICONS, SOURCE_COLORS, getAQIColor } from '../constants/zones';
 
-const SOURCE_ICONS = {
-  traffic: '🚗',
-  industrial: '🏭',
-  construction: '🏗️',
-  biomass_burning: '🔥',
-};
+function getPriorityClass(score) {
+  if (score >= 0.7) return 'priority-high';
+  if (score >= 0.4) return 'priority-medium';
+  return 'priority-low';
+}
 
-const SOURCE_COLORS = {
-  traffic: '#3b82f6',
-  industrial: '#f97316',
-  construction: '#f59e0b',
-  biomass_burning: '#ef4444',
-};
+function getRankStyle(rank) {
+  if (rank === 1) return { background: 'rgba(239,68,68,0.18)', color: '#ef4444' };
+  if (rank === 2) return { background: 'rgba(249,115,22,0.18)', color: '#f97316' };
+  if (rank === 3) return { background: 'rgba(245,158,11,0.18)', color: '#f59e0b' };
+  return { background: 'rgba(100,116,139,0.12)', color: '#64748b' };
+}
 
-function getRiskBadgeStyle(score) {
-  if (score >= 0.85) return { background: 'rgba(239,68,68,0.15)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)' };
-  if (score >= 0.70) return { background: 'rgba(249,115,22,0.15)', color: '#f97316', border: '1px solid rgba(249,115,22,0.3)' };
-  return { background: 'rgba(245,158,11,0.15)', color: '#f59e0b', border: '1px solid rgba(245,158,11,0.3)' };
+function LoadingSkeleton() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <div key={i} className="skeleton" style={{ height: 88, borderRadius: 14 }} />
+      ))}
+    </div>
+  );
 }
 
 /**
  * EnforcementList — Ranked enforcement priority cards.
  * Props:
  *   priorities: [{ zoneId, name, score, rank, reason, evidence }]
+ *   selectedZone: string
+ *   onZoneClick: (zoneId) => void
+ *   loading: bool
+ *   error: string | null
  */
-export default function EnforcementList({ priorities = [] }) {
+export default function EnforcementList({ priorities = [], selectedZone, onZoneClick, loading, error }) {
+  if (loading) return <LoadingSkeleton />;
+
+  if (error) {
+    return <div className="error-msg">Could not load enforcement priorities. Backend may be starting up.</div>;
+  }
+
   if (!priorities.length) {
-    return <div className="loading">Loading enforcement priorities…</div>;
+    return (
+      <div className="empty-state">
+        <div className="empty-state-icon">🚨</div>
+        <div>No enforcement data available yet.</div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-      {priorities.map((item) => (
-        <div key={item.zoneId} className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-          {/* Rank badge */}
-          <div style={{
-            minWidth: '36px', height: '36px', borderRadius: '50%',
-            background: item.rank <= 2 ? 'rgba(239,68,68,0.2)' : 'rgba(59,130,246,0.2)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 700, fontSize: '0.9rem',
-            color: item.rank <= 2 ? '#ef4444' : '#3b82f6',
-            flexShrink: 0,
-          }}>
-            #{item.rank}
-          </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+      {priorities.map((item) => {
+        const srcColor = item.evidence?.dominantSource
+          ? (SOURCE_COLORS[item.evidence.dominantSource] || '#64748b')
+          : '#64748b';
+        const aqiColor = getAQIColor(item.evidence?.aqi);
+        const isSelected = selectedZone === item.zoneId;
 
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h3 style={{ fontSize: '0.95rem', fontWeight: 600 }}>{item.name}</h3>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                {/* Priority score */}
-                <span style={{ ...getRiskBadgeStyle(item.score), fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '20px', fontWeight: 600 }}>
-                  Score: {Math.round(item.score * 100)}
-                </span>
-                {/* AQI badge */}
-                <span style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '20px', fontWeight: 600 }}>
-                  AQI {item.evidence?.aqi} — {item.evidence?.aqiCategory}
-                </span>
-                {/* Dominant source */}
-                {item.evidence?.dominantSource && (
-                  <span style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: '1px solid rgba(59,130,246,0.3)', fontSize: '0.72rem', padding: '0.2rem 0.6rem', borderRadius: '20px' }}>
-                    {SOURCE_ICONS[item.evidence.dominantSource]} {item.evidence.dominantSource}
+        return (
+          <div
+            key={item.zoneId}
+            className={`enforcement-card${isSelected ? ' selected' : ''}`}
+            onClick={() => onZoneClick && onZoneClick(item.zoneId)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => e.key === 'Enter' && onZoneClick && onZoneClick(item.zoneId)}
+          >
+            {/* Rank bubble */}
+            <div className="rank-bubble" style={getRankStyle(item.rank)}>
+              #{item.rank}
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {/* Top row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <h3 style={{ fontSize: '0.92rem', fontWeight: 700 }}>{item.name || item.zoneId}</h3>
+                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', flexShrink: 0 }}>
+                  <span className={`tag ${getPriorityClass(item.score)}`}>
+                    Score {Math.round(item.score * 100)}
                   </span>
+                  <span style={{ background: `${aqiColor}18`, color: aqiColor, border: `1px solid ${aqiColor}35` }}
+                    className="tag">
+                    AQI {item.evidence?.aqi}
+                  </span>
+                  {item.evidence?.dominantSource && (
+                    <span style={{ background: `${srcColor}15`, color: srcColor, border: `1px solid ${srcColor}30` }} className="tag">
+                      {SOURCE_ICONS[item.evidence.dominantSource]} {item.evidence.dominantSource}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Reason */}
+              <p style={{ fontSize: '0.8rem', color: '#7b91b0', lineHeight: 1.55, marginBottom: '0.45rem' }}>
+                {item.reason}
+              </p>
+
+              {/* Evidence row */}
+              <div style={{ display: 'flex', gap: '1rem', fontSize: '0.72rem', color: '#4a5d78', flexWrap: 'wrap' }}>
+                {item.evidence?.population != null && (
+                  <span>👥 {item.evidence.population.toLocaleString()} residents</span>
+                )}
+                {item.evidence?.attributionConfidence != null && (
+                  <span>🎯 {Math.round(item.evidence.attributionConfidence * 100)}% attribution confidence</span>
+                )}
+                {item.evidence?.aqiCategory && (
+                  <span>📊 {item.evidence.aqiCategory}</span>
                 )}
               </div>
             </div>
-
-            {/* Reason text */}
-            <p style={{ fontSize: '0.82rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '0.5rem' }}>
-              {item.reason}
-            </p>
-
-            {/* Evidence row */}
-            <div style={{ display: 'flex', gap: '1rem', fontSize: '0.75rem', color: '#64748b', flexWrap: 'wrap' }}>
-              <span>👥 {item.evidence?.population?.toLocaleString()} residents</span>
-              <span>🎯 Attribution: {Math.round((item.evidence?.attributionConfidence || 0) * 100)}% confidence</span>
-              {item.evidence?.keyPollutant && (
-                <span>⚠️ {item.evidence.keyPollutant}: {item.evidence.keyPollutantValue}</span>
-              )}
-            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

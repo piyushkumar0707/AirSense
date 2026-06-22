@@ -1,36 +1,33 @@
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import NavBar from './components/NavBar.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import ComparePage from './pages/ComparePage.jsx';
+import AdvisoryPage from './pages/AdvisoryPage.jsx';
 import './index.css';
 
 export default function App() {
   return (
     <BrowserRouter>
       <div className="app">
-        <nav className="navbar">
-          <div className="navbar-brand">
-            <span className="brand-icon">🌫️</span>
-            <span className="brand-name">AirSense</span>
-            <span className="brand-tag">AI Urban Air Quality Intelligence</span>
-          </div>
-          <div className="navbar-links">
-            <NavLink to="/" end>Dashboard</NavLink>
-            <NavLink to="/enforcement">Enforcement</NavLink>
-            <NavLink to="/cities">Multi-City</NavLink>
-            <NavLink to="/advisory">Advisory</NavLink>
-          </div>
-          <div className="navbar-badge">
-            <span className="demo-badge">📊 Demo Mode</span>
-            <span className="city-badge">🇮🇳 Delhi</span>
-          </div>
-        </nav>
-
+        <NavBar />
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/enforcement" element={<Dashboard tab="enforcement" />} />
-            <Route path="/cities" element={<Dashboard tab="cities" />} />
-            <Route path="/advisory" element={<Dashboard tab="advisory" />} />
+            <Route path="/"        element={<Dashboard />} />
+            <Route path="/compare" element={<ComparePage />} />
+            <Route path="/advisory"element={<AdvisoryPage />} />
+            {/* Catch-all */}
+            <Route path="*" element={
+              <div className="empty-state" style={{ paddingTop: '4rem' }}>
+                <div className="empty-state-icon">🌫️</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>Page not found</div>
+                <div style={{ marginTop: '0.5rem' }}>
+                  <a href="/" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
+                    ← Back to Dashboard
+                  </a>
+                </div>
+              </div>
+            } />
           </Routes>
         </main>
       </div>

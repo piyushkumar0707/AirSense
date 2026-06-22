@@ -1,104 +1,118 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
+import { FALLBACK_ZONES, getAQIColor, getAQICategory, SOURCE_COLORS } from '../constants/zones';
 
 const DELHI_CENTER = [28.6139, 77.2090];
 
-const ZONE_COORDS = {
-  'anand-vihar': [28.6469, 77.3152],
-  'rk-puram': [28.5651, 77.1876],
-  'ito': [28.6271, 77.2421],
-  'dwarka': [28.5921, 77.0460],
-  'rohini': [28.7413, 77.1151],
-  'punjabi-bagh': [28.6714, 77.1321],
-  'okhla': [28.5355, 77.2767],
-  'narela': [28.8561, 77.0956],
-  'lodhi-road': [28.5918, 77.2216],
-  'wazirpur': [28.7108, 77.1721],
-};
-
-function getAQIColor(aqi) {
-  if (aqi <= 50) return '#22c55e';
-  if (aqi <= 100) return '#a3e635';
-  if (aqi <= 200) return '#facc15';
-  if (aqi <= 300) return '#f97316';
-  if (aqi <= 400) return '#ef4444';
-  return '#7c3aed';
-}
-
-function getAQICategory(aqi) {
-  if (aqi <= 50) return 'Good';
-  if (aqi <= 100) return 'Satisfactory';
-  if (aqi <= 200) return 'Moderate';
-  if (aqi <= 300) return 'Poor';
-  if (aqi <= 400) return 'Very Poor';
-  return 'Severe';
-}
-
 /**
- * MapView — Delhi map with AQI heatmap circles and source attribution popup.
+ * MapView — Dark Leaflet map of Delhi with AQI-colored zone markers.
+ *
  * Props:
- *   zones: [{ zoneId, name, currentAQI, dominantSource, attributionConfidence }]
- *   onZoneClick: (zoneId) => void
+ *   zones: enriched zone objects with currentAQI, dominantSource, attributionConfidence
+ *   onZoneClick: (zoneId: string) => void
  *   selectedZone: string | null
  */
 export default function MapView({ zones = [], onZoneClick, selectedZone }) {
+  // Merge API zone data over the fallback coords
+  const enriched = FALLBACK_ZONES.map((fz) => {
+    const live = zones.find((z) => z.zoneId === fz.zoneId) || {};
+    return { ...fz, ...live };
+  });
+
   return (
-    <div style={{ height: '420px', width: '100%', borderRadius: '12px', overflow: 'hidden', border: '1px solid #1e293b' }}>
+    <div className="map-wrap" style={{ height: '440px' }}>
       <MapContainer
         center={DELHI_CENTER}
         zoom={11}
         style={{ height: '100%', width: '100%' }}
-        scrollWheelZoom={false}
+        scrollWheelZoom={true}
+        zoomControl={true}
       >
         <TileLayer
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+          maxZoom={19}
         />
 
-        {zones.map((zone) => {
-          const coords = ZONE_COORDS[zone.zoneId];
-          if (!coords) return null;
-          const color = getAQIColor(zone.currentAQI || 200);
+        {enriched.map((zone) => {
+          const aqi = zone.currentAQI || 200;
+          const aqiColor = getAQIColor(aqi);
+          const srcColor = zone.dominantSource ? (SOURCE_COLORS[zone.dominantSource] || '#64748b') : aqiColor;
           const isSelected = selectedZone === zone.zoneId;
 
           return (
             <CircleMarker
               key={zone.zoneId}
-              center={coords}
+              center={[zone.lat, zone.lng]}
               radius={isSelected ? 22 : 16}
               pathOptions={{
-                fillColor: color,
-                fillOpacity: 0.75,
-                color: isSelected ? '#ffffff' : color,
-                weight: isSelected ? 2 : 1,
+                fillColor: srcColor,
+                fillOpacity: isSelected ? 0.9 : 0.72,
+                color: isSelected ? '#ffffff' : srcColor,
+                weight: isSelected ? 3 : 1.5,
               }}
               eventHandlers={{ click: () => onZoneClick && onZoneClick(zone.zoneId) }}
             >
               <Popup>
-                <div style={{ minWidth: '180px' }}>
-                  <strong>{zone.name || zone.zoneId}</strong>
-                  <br />
-                  <span style={{ color, fontWeight: 700, fontSize: '1.2rem' }}>
-                    AQI {zone.currentAQI || '—'}
-                  </span>
-                  {' '}
-                  <span style={{ fontSize: '0.8rem', color: '#666' }}>
-                    ({getAQICategory(zone.currentAQI || 200)})
-                  </span>
-                  <br />
+                <div style={{ minWidth: 190 }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.35rem' }}>
+                    {zone.name}
+                  </div>
+                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: aqiColor, lineHeight: 1 }}>
+                    AQI {aqi}
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#888', marginBottom: '0.4rem' }}>
+                    {getAQICategory(aqi)}
+                  </div>
                   {zone.dominantSource && (
-                    <span style={{ fontSize: '0.8rem' }}>
-                      🏭 Dominant: <strong>{zone.dominantSource}</strong>
-                      {zone.attributionConfidence && ` (${Math.round(zone.attributionConfidence * 100)}%)`}
-                    </span>
+                    <div style={{ fontSize: '0.78rem', borderTop: '1px solid #333', paddingTop: '0.35rem', marginTop: '0.2rem' }}>
+                      <span style={{ color: srcColor, fontWeight: 600 }}>
+                        ● {zone.dominantSource.charAt(0).toUpperCase() + zone.dominantSource.slice(1)}
+                      </span>
+                      {zone.attributionConfidence && (
+                        <span style={{ color: '#888' }}>
+                          {' '}({Math.round(zone.attributionConfidence * 100)}% confidence)
+                        </span>
+                      )}
+                    </div>
                   )}
+                  <div style={{ marginTop: '0.5rem' }}>
+                    <button
+                      onClick={() => onZoneClick && onZoneClick(zone.zoneId)}
+                      style={{
+                        width: '100%', padding: '0.3rem 0.6rem', borderRadius: '6px',
+                        background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)',
+                        color: '#3b82f6', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600,
+                      }}
+                    >
+                      View Forecast & Attribution →
+                    </button>
+                  </div>
                 </div>
               </Popup>
             </CircleMarker>
           );
         })}
       </MapContainer>
+
+      {/* AQI Legend */}
+      <div className="map-legend">
+        <div style={{ fontWeight: 600, color: '#7b91b0', marginBottom: '0.25rem', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          Source Attribution
+        </div>
+        {[
+          { color: '#ef4444', label: 'Traffic' },
+          { color: '#f97316', label: 'Industrial' },
+          { color: '#a16207', label: 'Construction' },
+          { color: '#64748b', label: 'Unknown/Loading' },
+        ].map(({ color, label }) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span className="legend-dot" style={{ background: color }} />
+            <span style={{ color: '#7b91b0' }}>{label}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
