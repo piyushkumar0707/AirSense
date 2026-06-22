@@ -10,6 +10,7 @@ const { v4: uuidv4 } = require('crypto').randomUUID ? { v4: () => require('crypt
 const { generateAdvisory } = require('../services/llm-client');
 const { callML } = require('../services/ml-client');
 const AdvisoryLog = require('../models/AdvisoryLog');
+const { isValidZone, zoneIds } = require('../services/zones');
 
 // Simple POI proximity check (mock — in production, would query a spatial DB)
 const VULNERABLE_ZONES = ['rk-puram', 'rohini', 'dwarka']; // zones near hospitals/schools in sample data
@@ -32,6 +33,13 @@ router.post('/chat', async (req, res) => {
     return res.status(400).json({
       error: 'Unsupported language',
       message: 'language must be "en" or "hi"',
+    });
+  }
+
+  if (!isValidZone(location)) {
+    return res.status(400).json({
+      error: 'Invalid zone ID',
+      message: `location "${location}" not found. Valid zones: ${zoneIds.join(', ')}`,
     });
   }
 

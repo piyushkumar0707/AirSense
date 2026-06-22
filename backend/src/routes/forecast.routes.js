@@ -9,12 +9,7 @@ const router = express.Router();
 const { callML } = require('../services/ml-client');
 const { getCache, setCache } = require('../services/cache');
 const Forecast = require('../models/Forecast');
-
-// Valid zone IDs — from zones_metadata.csv
-const VALID_ZONES = [
-  'anand-vihar', 'rk-puram', 'ito', 'dwarka', 'rohini',
-  'punjabi-bagh', 'okhla', 'narela', 'lodhi-road', 'wazirpur',
-];
+const { zoneIds, isValidZone } = require('../services/zones');
 
 /**
  * GET /api/forecast/:wardId
@@ -23,10 +18,10 @@ router.get('/:wardId', async (req, res) => {
   const { wardId } = req.params;
 
   // Validate zone ID
-  if (!VALID_ZONES.includes(wardId)) {
+  if (!isValidZone(wardId)) {
     return res.status(400).json({
       error: 'Invalid zone ID',
-      message: `wardId "${wardId}" not found. Valid zones: ${VALID_ZONES.join(', ')}`,
+      message: `wardId "${wardId}" not found. Valid zones: ${zoneIds.join(', ')}`,
     });
   }
 
@@ -71,7 +66,7 @@ router.get('/:wardId', async (req, res) => {
  * GET /api/forecast  — list all available zone IDs
  */
 router.get('/', (_req, res) => {
-  res.json({ availableZones: VALID_ZONES });
+  res.json({ availableZones: zoneIds });
 });
 
 module.exports = router;

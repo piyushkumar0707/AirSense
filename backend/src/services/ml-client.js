@@ -5,21 +5,10 @@
  */
 
 const axios = require('axios');
-const path = require('path');
-const fs = require('fs');
+const { getMockData } = require('./mock-data');
 
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:8001';
 const DEMO_MODE = process.env.DEMO_MODE === 'true';
-
-// Load mock data once at startup
-const MOCK_DATA_PATH = path.join(__dirname, '../../../ml-service/data/mock_outputs.json');
-let mockData = null;
-try {
-  mockData = JSON.parse(fs.readFileSync(MOCK_DATA_PATH, 'utf-8'));
-  console.log('✅ Mock data loaded from ml-service/data/mock_outputs.json');
-} catch (e) {
-  console.warn('⚠️  Could not load mock data:', e.message);
-}
 
 /**
  * Generic ML service caller with mock fallback.
@@ -51,6 +40,7 @@ async function callML(endpoint, method = 'get', data = null) {
  * Parse the endpoint path and return the relevant mock data slice.
  */
 function getMockResponse(endpoint) {
+  const mockData = getMockData();
   if (!mockData) return null;
 
   // /forecast/:wardId

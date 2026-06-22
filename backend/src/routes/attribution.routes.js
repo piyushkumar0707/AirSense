@@ -9,11 +9,7 @@ const router = express.Router();
 const { callML } = require('../services/ml-client');
 const { getCache, setCache } = require('../services/cache');
 const Attribution = require('../models/Attribution');
-
-const VALID_ZONES = [
-  'anand-vihar', 'rk-puram', 'ito', 'dwarka', 'rohini',
-  'punjabi-bagh', 'okhla', 'narela', 'lodhi-road', 'wazirpur',
-];
+const { zoneIds, isValidZone } = require('../services/zones');
 
 /**
  * GET /api/attribution/:zoneId
@@ -21,10 +17,10 @@ const VALID_ZONES = [
 router.get('/:zoneId', async (req, res) => {
   const { zoneId } = req.params;
 
-  if (!VALID_ZONES.includes(zoneId)) {
+  if (!isValidZone(zoneId)) {
     return res.status(400).json({
       error: 'Invalid zone ID',
-      message: `zoneId "${zoneId}" not found. Valid zones: ${VALID_ZONES.join(', ')}`,
+      message: `zoneId "${zoneId}" not found. Valid zones: ${zoneIds.join(', ')}`,
     });
   }
 
@@ -69,7 +65,7 @@ router.get('/:zoneId', async (req, res) => {
  * GET /api/attribution  — list all available zones
  */
 router.get('/', (_req, res) => {
-  res.json({ availableZones: VALID_ZONES });
+  res.json({ availableZones: zoneIds });
 });
 
 module.exports = router;

@@ -7,18 +7,7 @@
 
 const express = require('express');
 const router = express.Router();
-const path = require('path');
-const fs = require('fs');
-
-// Load cities mock data
-const MOCK_DATA_PATH = path.join(__dirname, '../../../ml-service/data/mock_outputs.json');
-let citiesData = null;
-try {
-  const raw = JSON.parse(fs.readFileSync(MOCK_DATA_PATH, 'utf-8'));
-  citiesData = raw.cities;
-} catch (e) {
-  console.warn('[CITIES] Could not load cities mock data:', e.message);
-}
+const { getMockData } = require('../services/mock-data');
 
 const AVAILABLE_CITIES = ['delhi', 'mumbai', 'kolkata'];
 
@@ -38,6 +27,7 @@ router.get('/compare', (req, res) => {
     });
   }
 
+  const citiesData = getMockData()?.cities;
   if (!citiesData) {
     return res.status(503).json({ error: 'Cities data unavailable' });
   }
