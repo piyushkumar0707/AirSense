@@ -6,7 +6,6 @@
 *.pem
 *.key
 *.cert
-openweatherapikey.txt
 
 # ─── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
