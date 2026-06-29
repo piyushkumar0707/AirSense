@@ -64,18 +64,22 @@ export default function Dashboard() {
 
   // Enrich zones with attribution dominant source for map coloring
   const enrichedZones = zones.map(z => {
-    // Pull from enforcement priorities for mock AQI values
+    // Pull from enforcement priorities for baseline AQI/source data
     const ep = enforcement?.priorities?.find(p => p.zoneId === z.zoneId);
+    // If this is the selected zone AND fresh attribution data has loaded, prefer that
+    // (attribution is fetched per-zone on click — much fresher than enforcement which runs all zones at startup)
+    const freshAttr = (z.zoneId === selectedZone && attribution) ? attribution : null;
     return {
       ...z,
-      currentAQI:            ep?.evidence?.aqi || z.currentAQI,
-      dominantSource:        ep?.evidence?.dominantSource || z.dominantSource,
-      attributionConfidence: ep?.evidence?.attributionConfidence,
+      currentAQI:            freshAttr?.currentAQI            ?? ep?.evidence?.aqi               ?? z.currentAQI,
+      dominantSource:        freshAttr?.dominantSource         ?? ep?.evidence?.dominantSource     ?? z.dominantSource,
+      attributionConfidence: freshAttr?.sources?.[0]?.confidence ?? ep?.evidence?.attributionConfidence,
     };
   });
 
   const selectedZoneMeta = enrichedZones.find(z => z.zoneId === selectedZone);
-  const currentAQI = selectedZoneMeta?.currentAQI;
+  // Prefer attribution's live AQI (fetched per-zone) over enforcement's (which is slow — all zones)
+  const currentAQI = attribution?.currentAQI || selectedZoneMeta?.currentAQI;
   const aqiColor   = getAQIColor(currentAQI);
 
   return (
@@ -111,12 +115,13 @@ export default function Dashboard() {
         <div className="stat-tile">
           <div className="stat-label">Dominant Source</div>
           <div className="stat-value" style={{ fontSize: '0.95rem', textTransform: 'capitalize' }}>
-            {selectedZoneMeta?.dominantSource || '—'}
+            {attribution?.dominantSource || selectedZoneMeta?.dominantSource || '—'}
           </div>
           <div className="stat-sub">
-            {selectedZoneMeta?.attributionConfidence
-              ? `${Math.round(selectedZoneMeta.attributionConfidence * 100)}% confidence`
-              : 'Loading…'}
+            {(() => {
+              const conf = attribution?.sources?.[0]?.confidence || selectedZoneMeta?.attributionConfidence;
+              return conf ? `${Math.round(conf * 100)}% confidence` : 'Loading…';
+            })()}
           </div>
         </div>
         <div className="stat-tile">
@@ -218,6 +223,9 @@ export default function Dashboard() {
                 dominantSource={attribution?.dominantSource}
                 windDirection={attribution?.windDirection}
                 windSpeed={attribution?.windSpeed}
+                currentAQI={attribution?.currentAQI}
+                weatherDataSource={attribution?.weatherDataSource}
+                aqiSource={attribution?.aqiSource}
                 loading={aLoading}
                 error={aError}
               />
@@ -243,6 +251,16 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Data Disclosure Footer */}
+      <div style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+        <p style={{ marginBottom: '0.2rem' }}>
+          <strong style={{ color: 'var(--text-secondary)' }}>Data Disclosure:</strong> Live PM2.5 and weather data is fetched in real-time from OpenWeatherMap APIs.
+        </p>
+        <p>
+          Forecast models and source attribution run on live data. Where API limits are reached, the system falls back to sample historical CPCB data for demonstration purposes.
+        </p>
       </div>
     </div>
   );

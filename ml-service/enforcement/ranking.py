@@ -136,8 +136,18 @@ def get_enforcement_priorities(limit: int = 10) -> dict[str, Any]:
 
 def build_reason_text(zone_id: str, aqi: int, population: int, dominant_source: str, confidence: float) -> str:
     cat = aqi_to_category(aqi)
+    
+    actions = {
+        "industrial": "Deploy inspection teams to local industrial clusters to check for unauthorized emissions or overnight dumping. Elevated SO2/NO2 indicate active combustion.",
+        "traffic": "Coordinate with traffic police to manage localized congestion and idle heavy vehicles. High NO2/PM2.5 ratio indicates tailpipe emissions.",
+        "construction": "Dispatch municipal squads to enforce dust control norms (water sprinkling, covers) at active construction sites. High PM10 suggests fugitive dust.",
+        "biomass": "Alert local enforcement to patrol for open waste or biomass burning in the periphery. Elevated CO and PM2.5 indicate low-temperature combustion."
+    }
+    
+    action_text = actions.get(dominant_source, f"Investigate {dominant_source} sources for compliance violations.")
+    
     return (
         f"AQI {aqi} ({cat}) with {round(confidence * 100)}% {dominant_source} attribution confidence. "
         f"~{population:,} residents exposed. "
-        f"Enforcement action targeting {dominant_source} sources recommended."
+        f"{action_text}"
     )

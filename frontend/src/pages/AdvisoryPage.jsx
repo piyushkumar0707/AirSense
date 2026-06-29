@@ -21,7 +21,7 @@ export default function AdvisoryPage() {
             <span className="card-title-icon">💬</span>
             Health Advisory Chat
             <span className="tag tag-blue" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>
-              Powered by Gemini 2.5 Flash
+              Powered by Groq / Llama 3.1
             </span>
           </div>
           <AdvisoryChat />

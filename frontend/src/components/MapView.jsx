@@ -36,7 +36,7 @@ export default function MapView({ zones = [], onZoneClick, selectedZone }) {
         />
 
         {enriched.map((zone) => {
-          const aqi = zone.currentAQI || 200;
+          const aqi = zone.currentAQI || null;  // null = not yet loaded; don't fallback to misleading 200
           const aqiColor = getAQIColor(aqi);
           const srcColor = zone.dominantSource ? (SOURCE_COLORS[zone.dominantSource] || '#64748b') : aqiColor;
           const isSelected = selectedZone === zone.zoneId;
@@ -59,11 +59,11 @@ export default function MapView({ zones = [], onZoneClick, selectedZone }) {
                   <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.35rem' }}>
                     {zone.name}
                   </div>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: aqiColor, lineHeight: 1 }}>
-                    AQI {aqi}
+                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: aqi ? aqiColor : '#64748b', lineHeight: 1 }}>
+                    {aqi ? `AQI ${aqi}` : 'AQI —'}
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#888', marginBottom: '0.4rem' }}>
-                    {getAQICategory(aqi)}
+                    {aqi ? getAQICategory(aqi) : 'Loading live data…'}
                   </div>
                   {zone.dominantSource && (
                     <div style={{ fontSize: '0.78rem', borderTop: '1px solid #333', paddingTop: '0.35rem', marginTop: '0.2rem' }}>

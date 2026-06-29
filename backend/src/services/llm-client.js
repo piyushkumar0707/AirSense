@@ -8,7 +8,7 @@
 const OpenAI = require('openai');
 const { GoogleGenAI } = require('@google/genai');
 
-const LLM_PROVIDER = process.env.LLM_PROVIDER || 'openai';
+const LLM_PROVIDER = (process.env.LLM_PROVIDER || 'openai').toLowerCase();
 const LLM_API_KEY = process.env.LLM_API_KEY;
 
 let openaiClient = null;
@@ -18,7 +18,7 @@ let defaultModel = 'gpt-4o-mini';
 if (LLM_API_KEY) {
   if (LLM_PROVIDER === 'groq') {
     openaiClient = new OpenAI({ apiKey: LLM_API_KEY, baseURL: 'https://api.groq.com/openai/v1' });
-    defaultModel = 'llama3-8b-8192';
+    defaultModel = 'llama-3.1-8b-instant';
   } else if (LLM_PROVIDER === 'gemini') {
     geminiClient = new GoogleGenAI({ apiKey: LLM_API_KEY });
     defaultModel = 'gemini-2.5-flash';

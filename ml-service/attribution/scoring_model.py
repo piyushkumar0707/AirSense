@@ -11,12 +11,18 @@ Model logic (weighted scoring, not ML classifier):
   4. Biomass burning:   weighted by season (Oct-Jan peak) + fire hotspot data
 
 All four scores are normalized to sum to 1.0 → confidence scores.
+
+Weather data: fetched live from OpenWeatherMap via weather_client.get_weather().
+Falls back to weather_samples.csv if the API is unavailable.
 """
 
 from datetime import datetime, timezone
 from typing import Any
 import pandas as pd
 from pathlib import Path
+import sys, os
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from weather_client import get_weather, get_air_quality
 
 
 def pm25_to_aqi(pm25: float) -> int:
@@ -42,7 +48,6 @@ def pm25_to_aqi(pm25: float) -> int:
 DATA_PATH = Path(__file__).parent.parent / "data"
 ZONES_CSV = DATA_PATH / "zones_metadata.csv"
 CPCB_CSV = DATA_PATH / "cpcb_samples.csv"
-WEATHER_CSV = DATA_PATH / "weather_samples.csv"
 
 try:
     zones_df = pd.read_csv(ZONES_CSV)
@@ -87,54 +92,42 @@ def get_attribution(zone_id: str, pollutant_readings: dict = None, zone_meta: di
     now = datetime.now(timezone.utc)
 
     if pollutant_readings is None:
-        try:
-            df_cpcb = pd.read_csv(CPCB_CSV, skiprows=6)
-            df_cpcb.columns = ["time", "pm10", "pm25", "no2", "so2", "co"]
-            df_cpcb.ffill(inplace=True) # Fill NaNs with last valid observation
-            latest = df_cpcb.iloc[-1]
-            
-            import hashlib
-            h_val = int(hashlib.md5(zone_id.encode()).hexdigest()[:4], 16)
-            zone_offset = (h_val % 30) - 15
+        import hashlib
+        h_val = int(hashlib.md5(zone_id.encode()).hexdigest()[:4], 16)
+        zone_offset = (h_val % 30) - 15
 
-            pollutant_readings = {
-                "pm25": max(10, float(latest["pm25"]) + zone_offset * 0.3),
-                "pm10": max(10, float(latest["pm10"]) + zone_offset * 0.6),
-                "no2": max(5, float(latest["no2"]) + zone_offset * 0.1),
-                "so2": max(5, float(latest["so2"]) + zone_offset * 0.05),
-                "co": max(0.1, float(latest["co"])),
-                "aqi": pm25_to_aqi(max(0, float(latest["pm25"]) + zone_offset * 0.3)),
-            }
-        except Exception as e:
-            import hashlib
-            h_val = int(hashlib.md5(zone_id.encode()).hexdigest()[:4], 16)
-            zone_offset = (h_val % 30) - 15
-            pollutant_readings = {
-                "pm25": 145.0 + zone_offset * 0.3,
-                "pm10": 280.0 + zone_offset * 0.6,
-                "no2": 65.0,
-                "so2": 38.0,
-                "co": 1.8,
-                "aqi": pm25_to_aqi(max(0, 145.0 + zone_offset * 0.3)),
-            }
+        # Fetch zone lat/lng for accurate local AQI readings
+        base_meta_for_aq = zones_meta.get(zone_id, {})
+        zone_lat = float(base_meta_for_aq.get("lat", 28.6139))
+        zone_lon = float(base_meta_for_aq.get("lng", 77.2090))
+
+        live_aq = get_air_quality(lat=zone_lat, lon=zone_lon)
+
+        # Apply small deterministic zone offset to simulate spatial variability
+        # (OWM returns city-level data; zones within Delhi differ slightly)
+        pollutant_readings = {
+            "pm25": max(5,  round(live_aq["pm25"] + zone_offset * 0.3, 1)),
+            "pm10": max(5,  round(live_aq["pm10"] + zone_offset * 0.6, 1)),
+            "no2":  max(2,  round(live_aq["no2"]  + zone_offset * 0.1, 1)),
+            "so2":  max(2,  round(live_aq["so2"]  + zone_offset * 0.05, 1)),
+            "co":   max(50, round(live_aq["co"], 1)),   # µg/m³
+            "aqi":  pm25_to_aqi(max(0, live_aq["pm25"] + zone_offset * 0.3)),
+            "aqiSource": live_aq["aqiSource"],
+        }
         
     if zone_meta is None:
         base_meta = zones_meta.get(zone_id, {"landUseType": "mixed"})
-        try:
-            df_weather = pd.read_csv(WEATHER_CSV, skiprows=3)
-            df_weather.columns = ["time", "temp", "humidity", "precip", "wcode", "wind_dir", "wind_speed"]
-            latest_w = df_weather.iloc[-1]
-            zone_meta = {
-                "landUseType": base_meta.get("landUseType", "mixed"),
-                "windDirection": float(latest_w["wind_dir"]),
-                "windSpeed": float(latest_w["wind_speed"]),
-            }
-        except Exception:
-            zone_meta = {
-                "landUseType": base_meta.get("landUseType", "mixed"),
-                "windDirection": 180,
-                "windSpeed": 3.5
-            }
+        # Use zone lat/lng for more accurate local weather if available
+        zone_lat = float(base_meta.get("lat", 28.6139))
+        zone_lon = float(base_meta.get("lng", 77.2090))
+        live_weather = get_weather(lat=zone_lat, lon=zone_lon)
+        zone_meta = {
+            "landUseType":    base_meta.get("landUseType", "mixed"),
+            "windDirection":  live_weather["windDirection"],
+            "windSpeed":      live_weather["windSpeed"],
+            "temperature":    live_weather.get("temperature", 28.0),
+            "weatherDataSource": live_weather["dataSource"],
+        }
         
         scores = compute_attribution_scores(pollutant_readings, zone_meta, now)
         sources = [
@@ -153,8 +146,11 @@ def get_attribution(zone_id: str, pollutant_readings: dict = None, zone_meta: di
             "sources": sources,
             "windDirection": str(zone_meta.get("windDirection", "N/A")) + "°",
             "windSpeed": zone_meta.get("windSpeed", 0.0),
+            "temperature": zone_meta.get("temperature", None),
             "dominantSource": sources[0]["category"] if sources else "unknown",
             "dataSource": "real-scoring-model",
+            "weatherDataSource": zone_meta.get("weatherDataSource", "unknown"),
+            "aqiSource": pollutant_readings.get("aqiSource", "unknown"),
         }
 
 

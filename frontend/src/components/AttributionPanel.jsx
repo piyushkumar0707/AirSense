@@ -41,7 +41,8 @@ const CustomTooltip = ({ active, payload }) => {
  *   error: string | null
  */
 export default function AttributionPanel({
-  zoneId, sources = [], dominantSource, windDirection, windSpeed, loading, error
+  zoneId, sources = [], dominantSource, windDirection, windSpeed,
+  currentAQI, weatherDataSource, aqiSource, loading, error
 }) {
   if (loading) return <LoadingSkeleton />;
 
@@ -71,15 +72,14 @@ export default function AttributionPanel({
 
   return (
     <div>
-      {/* Header */}
       <div style={{ marginBottom: '0.85rem' }}>
-        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.1rem' }}>
+        <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: '0.35rem' }}>
           Pollution Source Attribution
           <span style={{ color: '#7b91b0', fontWeight: 400, fontSize: '0.8rem', marginLeft: '0.4rem' }}>
             — {zoneId?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
           </span>
         </h3>
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
           {dominantSource && (
             <span className="tag tag-orange">
               {SOURCE_ICONS[dominantSource] || '●'} Dominant: {dominantSource}
@@ -89,6 +89,25 @@ export default function AttributionPanel({
             <span className="tag tag-blue">
               🌬️ {windDirection} {windSpeed ? `${windSpeed} m/s` : ''}
             </span>
+          )}
+          {currentAQI && (
+            <span className="tag" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.25)', color: '#22c55e' }}>
+              AQI {currentAQI}
+            </span>
+          )}
+          {/* Live data provenance badges */}
+          {aqiSource === 'live-owm' && (
+            <span className="tag" style={{ background: 'rgba(59,130,246,0.10)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.65rem' }}>
+              🔴 Live AQI · OpenWeatherMap
+            </span>
+          )}
+          {weatherDataSource === 'live' && (
+            <span className="tag" style={{ background: 'rgba(59,130,246,0.10)', border: '1px solid rgba(59,130,246,0.3)', color: '#60a5fa', fontSize: '0.65rem' }}>
+              🌐 Live Weather
+            </span>
+          )}
+          {(aqiSource === 'csv-fallback' || weatherDataSource === 'csv-fallback') && (
+            <span className="tag tag-muted" style={{ fontSize: '0.65rem' }}>📄 Sample data</span>
           )}
         </div>
       </div>
@@ -149,7 +168,8 @@ export default function AttributionPanel({
       </ResponsiveContainer>
 
       <p style={{ fontSize: '0.68rem', color: '#4a5d78', marginTop: '0.25rem', textAlign: 'center' }}>
-        ℹ️ Scores computed from pollutant ratios + land-use + seasonal factors. Not a black-box model.
+        ℹ️ Scores computed from live pollutant ratios (OWM) + land-use + time-of-day + seasonal factors.
+        Fully explainable — no black-box model.
       </p>
     </div>
   );
