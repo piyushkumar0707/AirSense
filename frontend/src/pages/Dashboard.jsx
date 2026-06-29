@@ -160,9 +160,14 @@ export default function Dashboard() {
                   Sorted by composite score: AQI × Population × Attribution confidence
                 </div>
               </div>
-              <span className="tag tag-muted" style={{ fontSize: '0.65rem' }}>
-                Click card → zoom map
-              </span>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                {enforcement?.dataSource === 'real-model' ? (
+                  <span className="tag tag-green" style={{ fontSize: '0.65rem' }}>✅ Live model</span>
+                ) : enforcement?.dataSource ? (
+                  <span className="tag tag-amber" style={{ fontSize: '0.65rem' }}>📋 Sample data</span>
+                ) : null}
+                <span className="tag tag-muted" style={{ fontSize: '0.65rem' }}>Click card → zoom map</span>
+              </div>
             </div>
             <EnforcementList
               priorities={enforcement?.priorities || []}
@@ -170,6 +175,7 @@ export default function Dashboard() {
               onZoneClick={setSelectedZone}
               loading={eLoading}
               error={eError}
+              dataSource={enforcement?.dataSource}
             />
           </div>
         </div>
@@ -211,6 +217,19 @@ export default function Dashboard() {
                 loading={fLoading}
                 error={fError}
               />
+              {forecast?.dataSource === 'real-model' && (
+                <div style={{
+                  marginTop: '0.6rem',
+                  padding: '0.5rem 0.75rem',
+                  background: 'rgba(59,130,246,0.05)',
+                  border: '1px solid rgba(59,130,246,0.12)',
+                  borderRadius: 8,
+                  fontSize: '0.7rem',
+                  color: '#4a5d78',
+                }}>
+                  ℹ️ <strong style={{ color: '#7b91b0' }}>Model note:</strong> SARIMA trained on CPCB historical data (winter 2024). Forecasts reflect seasonal patterns. Current AQI is lower due to monsoon season — this is expected behaviour.
+                </div>
+              )}
             </div>
           )}
 

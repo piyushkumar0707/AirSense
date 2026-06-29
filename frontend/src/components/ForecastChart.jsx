@@ -84,7 +84,12 @@ export default function ForecastChart({ wardId, forecast = [], baselineCompariso
     high: pt.confidenceHigh,
   }));
 
-  const maxY = Math.max(...forecast.map((p) => p.confidenceHigh || 0), 350) + 30;
+  const allValues = forecast.flatMap((p) => [p.predictedAQI, p.confidenceLow, p.confidenceHigh].filter(Boolean));
+  const dataMin = Math.min(...allValues);
+  const dataMax = Math.max(...allValues);
+  const pad = Math.max((dataMax - dataMin) * 0.3, 20);
+  const minY = Math.max(0, Math.floor((dataMin - pad) / 10) * 10);
+  const maxY = Math.min(500, Math.ceil((dataMax + pad) / 10) * 10);
   const beats = baselineComparison && baselineComparison.modelRMSE < baselineComparison.persistenceRMSE;
 
   return (
@@ -98,7 +103,8 @@ export default function ForecastChart({ wardId, forecast = [], baselineCompariso
           </span>
         </h3>
         <p style={{ fontSize: '0.72rem', color: '#4a5d78' }}>
-          Shaded band shows confidence interval · Reference lines at AQI 200 (Poor) and 300 (Very Poor)
+          Shaded band shows confidence interval · AQI range {minY}–{maxY} shown
+          {maxY >= 200 && ' · Reference lines at AQI 200 and 300'}
         </p>
       </div>
 
@@ -117,12 +123,16 @@ export default function ForecastChart({ wardId, forecast = [], baselineCompariso
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="#1e2d45" />
           <XAxis dataKey="time" tick={{ fill: '#4a5d78', fontSize: 10 }} tickLine={false} />
-          <YAxis tick={{ fill: '#4a5d78', fontSize: 10 }} domain={[0, maxY]} tickLine={false} axisLine={false} />
+          <YAxis tick={{ fill: '#4a5d78', fontSize: 10 }} domain={[minY, maxY]} tickLine={false} axisLine={false} />
           <Tooltip content={<CustomTooltip />} />
-          <ReferenceLine y={200} stroke="#f97316" strokeDasharray="5 4" strokeWidth={1.2}
-            label={{ value: 'Poor', fill: '#f97316', fontSize: 10, position: 'right' }} />
-          <ReferenceLine y={300} stroke="#ef4444" strokeDasharray="5 4" strokeWidth={1.2}
-            label={{ value: 'V.Poor', fill: '#ef4444', fontSize: 10, position: 'right' }} />
+          {maxY >= 200 && minY <= 200 && (
+            <ReferenceLine y={200} stroke="#f97316" strokeDasharray="5 4" strokeWidth={1.2}
+              label={{ value: 'Poor', fill: '#f97316', fontSize: 10, position: 'right' }} />
+          )}
+          {maxY >= 300 && minY <= 300 && (
+            <ReferenceLine y={300} stroke="#ef4444" strokeDasharray="5 4" strokeWidth={1.2}
+              label={{ value: 'V.Poor', fill: '#ef4444', fontSize: 10, position: 'right' }} />
+          )}
           {/* Confidence band */}
           <Area type="monotone" dataKey="high" stroke="none" fill="url(#confBand)" name="High" />
           {/* Main predicted line */}
