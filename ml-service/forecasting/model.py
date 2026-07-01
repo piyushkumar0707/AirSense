@@ -120,7 +120,7 @@ def get_forecast(ward_id: str) -> dict[str, Any]:
             "modelRMSE": float(model_rmse),
             "persistenceRMSE": float(persistence_rmse),
             "modelName": f"SARIMA-Seasonal-{current_season.capitalize()}",
-            "improvementPercent": round((1-model_rmse/persistence_rmse)*100, 1) if persistence_rmse > 0 else 0.0,
+            "improvementPercent": float(round((1-model_rmse/persistence_rmse)*100, 1)) if persistence_rmse > 0 else 0.0,
         },
         "dataSource": "pre-trained-pkl-models",
     }
