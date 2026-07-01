@@ -183,7 +183,7 @@ export default function AdvisoryChat() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          placeholder={language === 'hi' ? 'अपना सवाल यहाँ लिखें…' : language === 'kn' ? 'ನಿಮ್ಮ ಪ्ರಶ್ನೆಯನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮाडि…' : 'Ask about air quality, health risks, precautions…'}
+          placeholder={language === 'hi' ? 'अपना सवाल यहाँ लिखें…' : language === 'kn' ? 'ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಿ…' : 'Ask about air quality, health risks, precautions…'}
           disabled={loading}
         />
         <button

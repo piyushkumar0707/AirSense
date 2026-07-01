@@ -21,7 +21,7 @@ const VULNERABLE_ZONES = ['rk-puram', 'rohini', 'dwarka']; // zones near hospita
 
 /**
  * POST /api/advisory/chat
- * Body: { location: string, query: string, language: 'en' | 'hi' }
+ * Body: { location: string, query: string, language: 'en' | 'hi' | 'kn' }
  */
 router.post('/chat', async (req, res) => {
   const { location, query, language = 'en' } = req.body;
@@ -33,10 +33,10 @@ router.post('/chat', async (req, res) => {
     });
   }
 
-  if (!['en', 'hi'].includes(language)) {
+  if (!['en', 'hi', 'kn'].includes(language)) {
     return res.status(400).json({
       error: 'Unsupported language',
-      message: 'language must be "en" or "hi"',
+      message: 'language must be "en", "hi", or "kn"',
     });
   }
 
@@ -118,6 +118,8 @@ router.post('/chat', async (req, res) => {
       error: 'Advisory service unavailable',
       reply: language === 'hi'
         ? 'क्षमा करें, सलाह सेवा अभी उपलब्ध नहीं है। सामान्य सुझाव: AQI 200 से ऊपर होने पर बाहर जाने से बचें।'
+        : language === 'kn'
+        ? 'ಕ್ಷಮಿಸಿ, ಸಲಹಾ ಸೇವೆ ಈಗ ಲಭ್ಯವಿಲ್ಲ. ಸಾಮಾನ್ಯ ಸಲಹೆ: AQI 200 ಮೀರಿದರೆ ಹೊರಗೆ ಹೋಗಬೇಡಿ.'
         : 'Advisory service temporarily unavailable. General guidance: avoid outdoor activity if AQI is above 200.',
       riskLevel: 'unknown',
     });
