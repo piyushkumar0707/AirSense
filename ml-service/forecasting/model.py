@@ -84,7 +84,7 @@ def get_forecast(ward_id: str) -> dict[str, Any]:
             model = SARIMAX(train, order=(1, 1, 1), seasonal_order=(1, 0, 1, 4))
             model_fit = model.fit(disp=False)
 
-            forecast = model_fit.forecast(steps=7)
+            forecast = model_fit.forecast(steps=12)  # 12 × 6hr = 72hr horizon (per problem statement)
 
             # Use last 28 periods (1 week) for a robust RMSE calculation instead of just 7
             actual_test = train[-28:]
