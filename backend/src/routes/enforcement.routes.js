@@ -15,7 +15,9 @@ const EnforcementPriority = require('../models/EnforcementPriority');
  */
 router.get('/priorities', async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
-  const cacheKey = `enforcement:priorities`;
+  // Namespace cache key by mode so mock and real data never collide
+  const mode = process.env.DEMO_MODE === 'true' ? 'demo' : 'live';
+  const cacheKey = `enforcement:priorities:${mode}`;
 
   try {
     // Check cache
