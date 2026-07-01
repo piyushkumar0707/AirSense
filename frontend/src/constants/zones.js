@@ -10,6 +10,9 @@ export const FALLBACK_ZONES = [
   { zoneId: "punjabi-bagh",name: "Punjabi Bagh",   lat: 28.6692, lng: 77.1310, landUseType: "mixed" },
   { zoneId: "okhla",       name: "Okhla",          lat: 28.5355, lng: 77.2730, landUseType: "industrial" },
   { zoneId: "mandir-marg", name: "Mandir Marg",    lat: 28.6358, lng: 77.2010, landUseType: "commercial" },
+  { zoneId: "narela",      name: "Narela",         lat: 28.8561, lng: 77.0956, landUseType: "industrial" },
+  { zoneId: "lodhi-road",  name: "Lodhi Road",     lat: 28.5918, lng: 77.2216, landUseType: "commercial" },
+  { zoneId: "wazirpur",    name: "Wazirpur",       lat: 28.7108, lng: 77.1721, landUseType: "industrial" },
 ];
 
 export const ZONE_MAP = Object.fromEntries(FALLBACK_ZONES.map((z) => [z.zoneId, z]));

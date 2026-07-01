@@ -4,13 +4,18 @@
       "wardId": "anand-vihar",
       "generatedAt": "2026-06-22T13:00:00Z",
       "forecast": [
-        { "timestamp": "2026-06-23T00:00:00Z", "predictedAQI": 285, "confidenceLow": 258, "confidenceHigh": 312 },
-        { "timestamp": "2026-06-23T06:00:00Z", "predictedAQI": 310, "confidenceLow": 280, "confidenceHigh": 340 },
-        { "timestamp": "2026-06-23T12:00:00Z", "predictedAQI": 295, "confidenceLow": 268, "confidenceHigh": 322 },
-        { "timestamp": "2026-06-23T18:00:00Z", "predictedAQI": 320, "confidenceLow": 290, "confidenceHigh": 350 },
-        { "timestamp": "2026-06-24T00:00:00Z", "predictedAQI": 298, "confidenceLow": 270, "confidenceHigh": 326 },
-        { "timestamp": "2026-06-24T12:00:00Z", "predictedAQI": 275, "confidenceLow": 248, "confidenceHigh": 302 },
-        { "timestamp": "2026-06-25T00:00:00Z", "predictedAQI": 265, "confidenceLow": 238, "confidenceHigh": 292 }
+        { "timestamp": "2026-07-02T00:00:00Z", "predictedAQI": 285, "confidenceLow": 258, "confidenceHigh": 312 },
+        { "timestamp": "2026-07-02T06:00:00Z", "predictedAQI": 310, "confidenceLow": 280, "confidenceHigh": 340 },
+        { "timestamp": "2026-07-02T12:00:00Z", "predictedAQI": 295, "confidenceLow": 268, "confidenceHigh": 322 },
+        { "timestamp": "2026-07-02T18:00:00Z", "predictedAQI": 320, "confidenceLow": 290, "confidenceHigh": 350 },
+        { "timestamp": "2026-07-03T00:00:00Z", "predictedAQI": 298, "confidenceLow": 270, "confidenceHigh": 326 },
+        { "timestamp": "2026-07-03T06:00:00Z", "predictedAQI": 278, "confidenceLow": 251, "confidenceHigh": 305 },
+        { "timestamp": "2026-07-03T12:00:00Z", "predictedAQI": 275, "confidenceLow": 248, "confidenceHigh": 302 },
+        { "timestamp": "2026-07-03T18:00:00Z", "predictedAQI": 290, "confidenceLow": 262, "confidenceHigh": 318 },
+        { "timestamp": "2026-07-04T00:00:00Z", "predictedAQI": 268, "confidenceLow": 241, "confidenceHigh": 295 },
+        { "timestamp": "2026-07-04T06:00:00Z", "predictedAQI": 255, "confidenceLow": 228, "confidenceHigh": 282 },
+        { "timestamp": "2026-07-04T12:00:00Z", "predictedAQI": 265, "confidenceLow": 238, "confidenceHigh": 292 },
+        { "timestamp": "2026-07-04T18:00:00Z", "predictedAQI": 272, "confidenceLow": 245, "confidenceHigh": 299 }
       ],
       "baselineComparison": {
         "modelRMSE": 18.2,
@@ -23,13 +28,18 @@
       "wardId": "rk-puram",
       "generatedAt": "2026-06-22T13:00:00Z",
       "forecast": [
-        { "timestamp": "2026-06-23T00:00:00Z", "predictedAQI": 198, "confidenceLow": 175, "confidenceHigh": 221 },
-        { "timestamp": "2026-06-23T06:00:00Z", "predictedAQI": 215, "confidenceLow": 190, "confidenceHigh": 240 },
-        { "timestamp": "2026-06-23T12:00:00Z", "predictedAQI": 225, "confidenceLow": 199, "confidenceHigh": 251 },
-        { "timestamp": "2026-06-23T18:00:00Z", "predictedAQI": 210, "confidenceLow": 185, "confidenceHigh": 235 },
-        { "timestamp": "2026-06-24T00:00:00Z", "predictedAQI": 202, "confidenceLow": 178, "confidenceHigh": 226 },
-        { "timestamp": "2026-06-24T12:00:00Z", "predictedAQI": 190, "confidenceLow": 167, "confidenceHigh": 213 },
-        { "timestamp": "2026-06-25T00:00:00Z", "predictedAQI": 185, "confidenceLow": 162, "confidenceHigh": 208 }
+        { "timestamp": "2026-07-02T00:00:00Z", "predictedAQI": 198, "confidenceLow": 175, "confidenceHigh": 221 },
+        { "timestamp": "2026-07-02T06:00:00Z", "predictedAQI": 215, "confidenceLow": 190, "confidenceHigh": 240 },
+        { "timestamp": "2026-07-02T12:00:00Z", "predictedAQI": 225, "confidenceLow": 199, "confidenceHigh": 251 },
+        { "timestamp": "2026-07-02T18:00:00Z", "predictedAQI": 210, "confidenceLow": 185, "confidenceHigh": 235 },
+        { "timestamp": "2026-07-03T00:00:00Z", "predictedAQI": 202, "confidenceLow": 178, "confidenceHigh": 226 },
+        { "timestamp": "2026-07-03T06:00:00Z", "predictedAQI": 195, "confidenceLow": 171, "confidenceHigh": 219 },
+        { "timestamp": "2026-07-03T12:00:00Z", "predictedAQI": 190, "confidenceLow": 167, "confidenceHigh": 213 },
+        { "timestamp": "2026-07-03T18:00:00Z", "predictedAQI": 200, "confidenceLow": 176, "confidenceHigh": 224 },
+        { "timestamp": "2026-07-04T00:00:00Z", "predictedAQI": 188, "confidenceLow": 164, "confidenceHigh": 212 },
+        { "timestamp": "2026-07-04T06:00:00Z", "predictedAQI": 182, "confidenceLow": 158, "confidenceHigh": 206 },
+        { "timestamp": "2026-07-04T12:00:00Z", "predictedAQI": 185, "confidenceLow": 162, "confidenceHigh": 208 },
+        { "timestamp": "2026-07-04T18:00:00Z", "predictedAQI": 192, "confidenceLow": 168, "confidenceHigh": 216 }
       ],
       "baselineComparison": {
         "modelRMSE": 14.1,
@@ -42,13 +52,18 @@
       "wardId": "okhla",
       "generatedAt": "2026-06-22T13:00:00Z",
       "forecast": [
-        { "timestamp": "2026-06-23T00:00:00Z", "predictedAQI": 342, "confidenceLow": 310, "confidenceHigh": 374 },
-        { "timestamp": "2026-06-23T06:00:00Z", "predictedAQI": 365, "confidenceLow": 330, "confidenceHigh": 400 },
-        { "timestamp": "2026-06-23T12:00:00Z", "predictedAQI": 350, "confidenceLow": 317, "confidenceHigh": 383 },
-        { "timestamp": "2026-06-23T18:00:00Z", "predictedAQI": 378, "confidenceLow": 342, "confidenceHigh": 414 },
-        { "timestamp": "2026-06-24T00:00:00Z", "predictedAQI": 358, "confidenceLow": 323, "confidenceHigh": 393 },
-        { "timestamp": "2026-06-24T12:00:00Z", "predictedAQI": 330, "confidenceLow": 298, "confidenceHigh": 362 },
-        { "timestamp": "2026-06-25T00:00:00Z", "predictedAQI": 315, "confidenceLow": 284, "confidenceHigh": 346 }
+        { "timestamp": "2026-07-02T00:00:00Z", "predictedAQI": 342, "confidenceLow": 310, "confidenceHigh": 374 },
+        { "timestamp": "2026-07-02T06:00:00Z", "predictedAQI": 365, "confidenceLow": 330, "confidenceHigh": 400 },
+        { "timestamp": "2026-07-02T12:00:00Z", "predictedAQI": 350, "confidenceLow": 317, "confidenceHigh": 383 },
+        { "timestamp": "2026-07-02T18:00:00Z", "predictedAQI": 378, "confidenceLow": 342, "confidenceHigh": 414 },
+        { "timestamp": "2026-07-03T00:00:00Z", "predictedAQI": 358, "confidenceLow": 323, "confidenceHigh": 393 },
+        { "timestamp": "2026-07-03T06:00:00Z", "predictedAQI": 340, "confidenceLow": 307, "confidenceHigh": 373 },
+        { "timestamp": "2026-07-03T12:00:00Z", "predictedAQI": 330, "confidenceLow": 298, "confidenceHigh": 362 },
+        { "timestamp": "2026-07-03T18:00:00Z", "predictedAQI": 345, "confidenceLow": 312, "confidenceHigh": 378 },
+        { "timestamp": "2026-07-04T00:00:00Z", "predictedAQI": 320, "confidenceLow": 288, "confidenceHigh": 352 },
+        { "timestamp": "2026-07-04T06:00:00Z", "predictedAQI": 310, "confidenceLow": 279, "confidenceHigh": 341 },
+        { "timestamp": "2026-07-04T12:00:00Z", "predictedAQI": 315, "confidenceLow": 284, "confidenceHigh": 346 },
+        { "timestamp": "2026-07-04T18:00:00Z", "predictedAQI": 325, "confidenceLow": 293, "confidenceHigh": 357 }
       ],
       "baselineComparison": {
         "modelRMSE": 22.5,

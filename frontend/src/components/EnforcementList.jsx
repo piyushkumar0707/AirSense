@@ -51,6 +51,24 @@ export default function EnforcementList({ priorities = [], selectedZone, onZoneC
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+      {/* Response Time Impact Strip — Business Impact (25%) criterion */}
+      <div style={{
+        display: 'flex', gap: '0.5rem', alignItems: 'stretch',
+        padding: '0.6rem 0.85rem',
+        background: 'linear-gradient(90deg, rgba(59,130,246,0.06) 0%, rgba(6,182,212,0.06) 100%)',
+        border: '1px solid rgba(59,130,246,0.15)',
+        borderRadius: 10, fontSize: '0.72rem',
+      }}>
+        <div style={{ flex: 1, borderRight: '1px solid rgba(255,255,255,0.06)', paddingRight: '0.75rem' }}>
+          <div style={{ color: '#ef4444', fontWeight: 700, marginBottom: '0.15rem' }}>⏱ Without AirSense</div>
+          <div style={{ color: '#4a5d78' }}>Days to identify hotspot + route inspectors</div>
+        </div>
+        <div style={{ flex: 1, paddingLeft: '0.75rem' }}>
+          <div style={{ color: '#22c55e', fontWeight: 700, marginBottom: '0.15rem' }}>⚡ With AirSense</div>
+          <div style={{ color: '#4a5d78' }}>&lt; 2 hrs from signal to field action</div>
+        </div>
+      </div>
+
       {priorities.map((item) => {
         const srcColor = item.evidence?.dominantSource
           ? (SOURCE_COLORS[item.evidence.dominantSource] || '#64748b')

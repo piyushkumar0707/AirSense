@@ -109,7 +109,7 @@ def get_forecast(ward_id: str) -> dict[str, Any]:
             print(f"Error training model: {e}")
             base_api = 250
             forecast_points = []
-            for i in range(7):
+            for i in range(12):  # 12 × 6hr = 72hr — consistent with happy path
                 ts = now + timedelta(hours=i*6)
                 predicted = int(np.clip(base_api+np.random.normal(0, 15), 50, 500))
                 forecast_points.append({

@@ -116,8 +116,7 @@ def get_attribution(zone_id: str, pollutant_readings: dict = None, zone_meta: di
         }
         
     if zone_meta is None:
-        base_meta = zones_meta.get(zone_id, {"landUseType": "mixed"})
-        # Use zone lat/lng for more accurate local weather if available
+        base_meta = zones_meta.get(zone_id, {})
         zone_lat = float(base_meta.get("lat", 28.6139))
         zone_lon = float(base_meta.get("lng", 77.2090))
         live_weather = get_weather(lat=zone_lat, lon=zone_lon)
@@ -128,30 +127,31 @@ def get_attribution(zone_id: str, pollutant_readings: dict = None, zone_meta: di
             "temperature":    live_weather.get("temperature", 28.0),
             "weatherDataSource": live_weather["dataSource"],
         }
-        
-        scores = compute_attribution_scores(pollutant_readings, zone_meta, now)
-        sources = [
-            {
-                "category": category,
-                "confidence": round(score, 2),
-                "evidence": build_evidence_text(category, pollutant_readings, zone_meta),
-            }
-            for category, score in sorted(scores.items(), key=lambda f: f[1], reverse=True)
-        ]
 
-        return {
-            "zoneId": zone_id,
-            "timestamp": now.isoformat(),
-            "currentAQI": pollutant_readings.get("aqi", 0),
-            "sources": sources,
-            "windDirection": str(zone_meta.get("windDirection", "N/A")) + "°",
-            "windSpeed": zone_meta.get("windSpeed", 0.0),
-            "temperature": zone_meta.get("temperature", None),
-            "dominantSource": sources[0]["category"] if sources else "unknown",
-            "dataSource": "real-scoring-model",
-            "weatherDataSource": zone_meta.get("weatherDataSource", "unknown"),
-            "aqiSource": pollutant_readings.get("aqiSource", "unknown"),
+    # Always executes after zone_meta is resolved (whether passed in or fetched above)
+    scores = compute_attribution_scores(pollutant_readings, zone_meta, now)
+    sources = [
+        {
+            "category": category,
+            "confidence": round(score, 2),
+            "evidence": build_evidence_text(category, pollutant_readings, zone_meta),
         }
+        for category, score in sorted(scores.items(), key=lambda f: f[1], reverse=True)
+    ]
+
+    return {
+        "zoneId": zone_id,
+        "timestamp": now.isoformat(),
+        "currentAQI": pollutant_readings.get("aqi", 0),
+        "sources": sources,
+        "windDirection": str(zone_meta.get("windDirection", "N/A")) + "°",
+        "windSpeed": zone_meta.get("windSpeed", 0.0),
+        "temperature": zone_meta.get("temperature", None),
+        "dominantSource": sources[0]["category"] if sources else "unknown",
+        "dataSource": "real-scoring-model",
+        "weatherDataSource": zone_meta.get("weatherDataSource", "unknown"),
+        "aqiSource": pollutant_readings.get("aqiSource", "unknown"),
+    }
 
 
 def compute_attribution_scores(

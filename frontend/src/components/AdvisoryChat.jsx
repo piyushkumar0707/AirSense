@@ -23,11 +23,18 @@ const SUGGESTION_CHIPS = {
     'मुझे कौन सा मास्क पहनना चाहिए?',
     'आज हवा की गुणवत्ता कैसी है?',
   ],
+  kn: [
+    'ಇಂದು ಬೆಳಿಗ್ಗೆ ಓಡಲು ಹೋಗಲು ಸಾಧ್ಯವೇ?',
+    'ನನ್ನ ಮಗು ಬಯಟೆ ಆಟಲು ಸಧ್ಯವೇ?',
+    'ಯಾವ ಮಾಸ್ಕ್ ಧರಿಸಬೇಕು?',
+    'ಇಂದು ಗಾಳಿನ ಗುಣಮಟ್ಟ ಹೇಗಿದೆ?',
+  ],
 };
 
 const FALLBACK_REPLY = {
   en: (loc) => `Sorry, the advisory service is temporarily unavailable. General tip: If AQI in ${loc.replace(/-/g, ' ')} is above 200, avoid prolonged outdoor activity and wear an N95 mask if going out.`,
   hi: (loc) => `क्षमा करें, सेवा अभी उपलब्ध नहीं है। सामान्य सुझाव: यदि ${loc.replace(/-/g, ' ')} में AQI 200 से अधिक है, तो बाहर न जाएं और अगर जाएं तो N95 मास्क पहनें।`,
+  kn: (loc) => `ಕ್ಷಮಿಸಿ, ಸೇವೆ ಗೈ ಲಭ್ಯವಿಲ್ಲ. ಸಾಮಾನ್ಯ ಸಲಹೆ: ${loc.replace(/-/g, ' ')} ನಲ್ಲಿ AQI 200 ಕ್ಕಿಂತ ಹೆಚ್ಚಿದ್ದರೆ, ಹೋಗಲೇ ಬೇಡ, N95 ಮಾಸ್ಕ್ ಧರಿಸಿ.`,
 };
 
 export default function AdvisoryChat() {
@@ -96,7 +103,7 @@ export default function AdvisoryChat() {
         </select>
 
         <div style={{ display: 'flex', gap: '0.4rem' }}>
-          {[['en', '🇬🇧 EN'], ['hi', '🇮🇳 HI']].map(([code, label]) => (
+          {[['en', '🇬🇧 EN'], ['hi', '🇮🇳 HI'], ['kn', '🇮🇳 KN']].map(([code, label]) => (
             <button
               key={code}
               className={`btn btn-ghost${language === code ? ' active' : ''}`}
@@ -176,7 +183,7 @@ export default function AdvisoryChat() {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && !e.shiftKey && sendMessage()}
-          placeholder={language === 'hi' ? 'अपना सवाल यहाँ लिखें…' : 'Ask about air quality, health risks, precautions…'}
+          placeholder={language === 'hi' ? 'अपना सवाल यहाँ लिखें…' : language === 'kn' ? 'ನಿಮ್ಮ ಪ्ರಶ್ನೆಯನ್ನು ಇಲ್ಲಿ ಟೈಪ್ ಮाडि…' : 'Ask about air quality, health risks, precautions…'}
           disabled={loading}
         />
         <button

@@ -75,8 +75,10 @@ export default function AdvisoryPage() {
             <div style={{ fontSize: '0.78rem', color: '#7b91b0', lineHeight: 1.7 }}>
               <div>✅ English — Full support</div>
               <div>✅ Hindi (हिंदी) — Full support</div>
+              <div>✅ Kannada (ಕನ್ನಡ) — Full support</div>
+              <div style={{ color: '#4a5d78' }}>🔜 Tamil (தமிழ்) — Coming soon</div>
               <div style={{ marginTop: '0.5rem', color: '#4a5d78', fontSize: '0.7rem' }}>
-                More regional languages are a future roadmap item.
+                More regional languages planned for production rollout.
               </div>
             </div>
           </div>

@@ -45,12 +45,14 @@ function getRiskLevel(aqi) {
   return 'severe';
 }
 
-// Fallback static advisory messages (English + Hindi)
+// Fallback static advisory messages (English + Hindi + Kannada)
 const FALLBACK_ADVISORY = {
   en: (location, aqi) =>
     `Air quality at ${location} is ${getAQICategory(aqi)} (AQI: ${aqi}). Please take necessary precautions. Sensitive groups should avoid outdoor activities. (Advisory service temporarily unavailable — this is a general message.)`,
   hi: (location, aqi) =>
     `${location} में वायु गुणवत्ता ${getAQICategory(aqi)} है (AQI: ${aqi})। कृपया आवश्यक सावधानियां बरतें। संवेदनशील समूहों को बाहरी गतिविधियों से बचना चाहिए। (परामर्श सेवा अस्थायी रूप से अनुपलब्ध है।)`,
+  kn: (location, aqi) =>
+    `${location} ನಲ್ಲಿ ವಾಯು ಗುಣಮಟ್ಟ ${getAQICategory(aqi)} ಆಗಿದೆ (AQI: ${aqi}). ದಯವಿಟ್ಟು ಅಗತ್ಯ ಮುನ್ನೆಚ್ಚರಿಕೆ ತೆಗೆದುಕೊಳ್ಳಿ. ಸೂಕ್ಷ್ಮ ಗುಂಪುಗಳು ಹೊರಾಂಗಣ ಚಟುವಟಿಕೆಗಳನ್ನು ತಪ್ಪಿಸಬೇಕು.`,
 };
 
 /**
@@ -58,7 +60,7 @@ const FALLBACK_ADVISORY = {
  * @param {string} location - Zone name
  * @param {number} aqi - Current/predicted AQI
  * @param {string} query - User's question
- * @param {string} language - 'en' | 'hi'
+ * @param {string} language - 'en' | 'hi' | 'kn'
  * @param {boolean} nearVulnerablePOI - If near hospital/school
  */
 async function generateAdvisory({ location, aqi, query, language = 'en', nearVulnerablePOI = false }) {
@@ -76,6 +78,8 @@ async function generateAdvisory({ location, aqi, query, language = 'en', nearVul
 
   const systemPrompt = language === 'hi'
     ? `आप एक उपयोगी वायु गुणवत्ता स्वास्थ्य सलाहकार हैं। हिंदी में संक्षिप्त, व्यावहारिक सलाह दें। AQI श्रेणी: ${aqiCategory}। ${urgencyNote}`
+    : language === 'kn'
+    ? `ನೀವು ಒಬ್ಬ ಸಹಾಯಕ ವಾಯು ಗುಣಮಟ್ಟ ಆರೋಗ್ಯ ಸಲಹೆಗಾರರು. ಕನ್ನಡದಲ್ಲಿ ಸಂಕ್ಷಿಪ್ತ, ಪ್ರಾಯೋಗಿಕ ಸಲಹೆ ನೀಡಿ. AQI ವರ್ಗ: ${aqiCategory}. ${urgencyNote}`
     : `You are a helpful air quality health advisor. Give concise, practical advice in English. AQI Category: ${aqiCategory}. ${urgencyNote}`;
 
   const userPrompt = `Location: ${location}. Current AQI: ${aqi} (${aqiCategory}). User question: "${query}"`;

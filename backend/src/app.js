@@ -9,6 +9,7 @@ const attributionRoutes = require('./routes/attribution.routes');
 const enforcementRoutes = require('./routes/enforcement.routes');
 const citiesRoutes = require('./routes/cities.routes');
 const advisoryRoutes = require('./routes/advisory.routes');
+const zonesRoutes = require('./routes/zones.routes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use((req, _res, next) => {
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
+app.use('/api/zones', zonesRoutes);
 app.use('/api/forecast', forecastRoutes);
 app.use('/api/attribution', attributionRoutes);
 app.use('/api/enforcement', enforcementRoutes);
