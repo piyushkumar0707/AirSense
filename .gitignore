@@ -131,3 +131,7 @@ playwright-report/
 .cache/
 tmp/
 temp/
+
+# ─── AI / IDE Artifacts ────────────────────────────────────────────────────────
+# AI-generated memory/context files — not project source, may contain secrets
+codebase_map.md
